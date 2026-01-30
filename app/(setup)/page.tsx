@@ -3,6 +3,8 @@ import { initialProfile } from "@/lib/initial-profile";
 import { redirect } from "next/navigation";
 import { InitialModal } from "@/components/modals/initial-modal";
 
+export const dynamic = "force-dynamic";
+
 const SetupPage = async () => {
   try {
     const profile = await initialProfile();
