@@ -45,7 +45,7 @@ export const useChatQuery = ({
       queryFn: fetchMessages,
       getNextPageParam: (lastPage) => lastPage?.nextCursor,
       initialPageParam: undefined,
-      refetchInterval: isConnected ? false : 1000, // Polling
+      refetchInterval: 1000, // Socket.io on Vercel is not reliable, force 1s polling
     });
 
   return {
