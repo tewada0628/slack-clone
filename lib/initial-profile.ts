@@ -8,24 +8,29 @@ export const initialProfile = async () => {
     return redirectToSignIn();
   }
 
-  const profile = await db.profile.findUnique({
-    where: {
-      userId: user.id,
-    },
-  });
+  try {
+    const profile = await db.profile.findUnique({
+      where: {
+        userId: user.id,
+      },
+    });
 
-  if (profile) {
-    return profile;
+    if (profile) {
+      return profile;
+    }
+
+    const newProfile = await db.profile.create({
+      data: {
+        userId: user.id,
+        name: `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}`,
+        imageUrl: user.imageUrl,
+        email: user.emailAddresses[0].emailAddress,
+      },
+    });
+
+    return newProfile;
+  } catch (error) {
+    console.error("[INITIAL_PROFILE_ERROR]", error);
+    throw error;
   }
-
-  const newProfile = await db.profile.create({
-    data: {
-      userId: user.id,
-      name: `${user.firstName} ${user.lastName}`,
-      imageUrl: user.imageUrl,
-      email: user.emailAddresses[0].emailAddress,
-    },
-  });
-
-  return newProfile;
 };
