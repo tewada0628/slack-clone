@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 
 const MESSAGES_BATCH = 10;
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request) {
   try {
     const profile = await currentProfile();
