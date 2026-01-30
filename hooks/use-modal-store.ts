@@ -1,4 +1,4 @@
-import { Workspace } from "@prisma/client";
+import { Channel, Workspace } from "@prisma/client";
 import { create } from "zustand";
 
 export type ModalType =
@@ -10,10 +10,13 @@ export type ModalType =
   | "leaveWorkspace"
   | "deleteWorkspace"
   | "messageFile"
-  | "deleteMessage";
+  | "deleteMessage"
+  | "editChannel"
+  | "deleteChannel";
 
 interface ModalData {
   workspace?: Workspace;
+  channel?: Channel;
   apiUrl?: string;
   query?: Record<string, any>;
 }

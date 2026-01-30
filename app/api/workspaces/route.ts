@@ -8,8 +8,11 @@ import { MemberRole } from "@prisma/client";
 
 export async function POST(req: Request) {
   try {
+    console.log("[WORKSPACES_POST] Request received");
     const { name, imageUrl } = await req.json();
+    console.log("[WORKSPACES_POST] Values:", { name, imageUrl });
     const profile = await currentProfile();
+    console.log("[WORKSPACES_POST] Profile:", profile?.id);
 
     if (!profile) {
       return new NextResponse("Unauthorized", { status: 401 });

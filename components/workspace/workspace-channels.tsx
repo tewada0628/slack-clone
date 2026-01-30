@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useReducer } from "react";
+import React from "react";
 import type { WorkspaceWithChannels } from "@/types";
-import { Plus } from "lucide-react";
-import { MemberRole } from "@prisma/client";
+import { Plus, Edit, Trash } from "lucide-react";
+import { MemberRole, Channel } from "@prisma/client";
 import { useModal } from "@/hooks/use-modal-store";
 import { useRouter, useParams } from "next/navigation";
 import clsx from "clsx";
+import { ActionTooltip } from "@/components/action-tooltip";
 
 interface WorkspaceChannelsProps {
   workspace: WorkspaceWithChannels;
@@ -25,6 +26,11 @@ export const WorkspaceChannels = ({
     router.push(`/workspaces/${workspace.id}/channels/${id}`);
   };
 
+  const onAction = (e: React.MouseEvent, action: string, channel: Channel) => {
+    e.stopPropagation();
+    onOpen(action as any, { channel, workspace });
+  };
+
   return (
     <div className="text-sm">
       <div className="text-zinc-300">Channels</div>
@@ -34,7 +40,7 @@ export const WorkspaceChannels = ({
             key={channel.id}
             onClick={() => onChannelClick(channel.id)}
             className={clsx(
-              "flex items-center text-zinc-300 py-1 px-2 hover:bg-[#3b1f40] dark:hover:bg-[#2a162d] rounded-lg cursor-pointer",
+              "group flex items-center text-zinc-300 py-1 px-2 hover:bg-[#3b1f40] dark:hover:bg-[#2a162d] rounded-lg cursor-pointer",
               {
                 "bg-[#5F2465] text-white hover:bg-[#5F2465] hover:dark:bg-[#5F2465]":
                   params?.channelId === channel.id,
@@ -42,7 +48,23 @@ export const WorkspaceChannels = ({
             )}
           >
             <div className="mr-2">#</div>
-            <div>{channel.name}</div>
+            <div className="flex-1 truncate">{channel.name}</div>
+            {channel.name !== "general" && role !== MemberRole.GUEST && (
+              <div className="ml-auto flex items-center gap-x-2">
+                <ActionTooltip label="Edit">
+                  <Edit
+                    onClick={(e) => onAction(e, "editChannel", channel)}
+                    className="hidden group-hover:block w-3 h-3 text-zinc-400 hover:text-white transition"
+                  />
+                </ActionTooltip>
+                <ActionTooltip label="Delete">
+                  <Trash
+                    onClick={(e) => onAction(e, "deleteChannel", channel)}
+                    className="hidden group-hover:block w-3 h-3 text-zinc-400 hover:text-rose-500 transition"
+                  />
+                </ActionTooltip>
+              </div>
+            )}
           </div>
         ))}
         {role !== MemberRole.GUEST && (

@@ -4,11 +4,11 @@ import axios from "axios";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import qs from "query-string";
 
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -23,101 +23,91 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { FileUpload } from "../file-upload";
 
 import { useRouter } from "next/navigation";
+import { useModal } from "@/hooks/use-modal-store";
+import { useEffect } from "react";
 
 const formSchema = z.object({
-  name: z.string().min(1, {
-    message: "Workspace name is required",
-  }),
-  imageUrl: z.string().min(1, {
-    message: "Workspace image is required",
-  }),
+  name: z
+    .string()
+    .min(1, {
+      message: "Channel name is required",
+    })
+    .refine((name) => name !== "general", {
+      message: "Channel name cannot be 'general'",
+    }),
 });
 
-export const InitialModal = () => {
-  const [isMounted, setIsMounted] = useState(false);
+export const EditChannelModal = () => {
+  const { isOpen, onClose, type, data } = useModal();
   const router = useRouter();
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isModalOpen = isOpen && type === "editChannel";
+  const { channel, workspace } = data;
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      imageUrl: "",
     },
   });
+
+  useEffect(() => {
+    if (channel) {
+      form.setValue("name", channel.name);
+    }
+  }, [channel, form]);
 
   const isLoading = form.formState.isSubmitting;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      console.log("[INITIAL_MODAL_SUBMIT] Data:", values);
-      await axios.post("/api/workspaces", values);
-      console.log("[INITIAL_MODAL_SUBMIT] Success");
+      const url = qs.stringifyUrl({
+        url: `/api/channels/${channel?.id}`,
+        query: {
+          workspaceId: workspace?.id,
+        },
+      });
+      await axios.patch(url, values);
+
       form.reset();
       router.refresh();
-      window.location.reload();
+      onClose();
     } catch (error) {
-      console.log("[INITIAL_MODAL_SUBMIT] Error:", error);
+      console.log(error);
     }
   };
 
-  if (!isMounted) {
-    return null;
-  }
+  const handleClose = () => {
+    form.reset();
+    onClose();
+  };
 
   return (
-    <Dialog open>
+    <Dialog open={isModalOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-white text-black p-0 overflow-hidden">
         <DialogHeader className="pt-8 px-6">
           <DialogTitle className="text-2xl text-center font-bold">
-            Customize your Workspace
+            Edit Channel
           </DialogTitle>
-          <DialogDescription className="text-center text-zinc-500">
-            Give your workspace a personality with a name and an image. You can
-            always change it later
-          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="space-y-8 px-6">
-              <div className="flex items-center justify-center text-center">
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <FileUpload
-                          endpoint="workspaceImage"
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70">
-                      Workspace name
+                      Channel name
                     </FormLabel>
                     <FormControl>
                       <Input
                         disabled={isLoading}
                         className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0"
-                        placeholder="Enter workspace name"
+                        placeholder="Enter channel name"
                         {...field}
                       />
                     </FormControl>
@@ -127,8 +117,8 @@ export const InitialModal = () => {
               />
             </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
-              <Button disabled={isLoading} variant="primary" type="submit">
-                Create
+              <Button disabled={isLoading} variant="primary">
+                Save
               </Button>
             </DialogFooter>
           </form>

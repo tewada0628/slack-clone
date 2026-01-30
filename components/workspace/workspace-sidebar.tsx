@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { redirectToSignIn } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import { WorkspaceHeader } from "./workspace-header";
-import { WorkspaceChannels } from "./workpace-channels";
+import { WorkspaceChannels } from "./workspace-channels";
 import { ScrollArea } from "../ui/scroll-area";
 import { WorkspaceMembers } from "./workspace-members";
 
@@ -49,12 +49,6 @@ export const WorkspaceSidebar = async ({
   if (!workspace) {
     return redirect("/");
   }
-
-  const channels = workspace?.channels;
-
-  const members = workspace?.members.filter(
-    (member) => member.profileId !== profile.id
-  );
 
   const role = workspace.members.find(
     (member) => member.profileId === profile.id

@@ -10,6 +10,8 @@ import { LeaveWorkspaceModal } from "@/components/modals/leave-workspace-modal";
 import { DeleteWorkspaceModal } from "@/components/modals/delete-workspace-modal";
 import { MessageFileModal } from "@/components/modals/message-file-modal";
 import { DeleteMessageModal } from "@/components/modals/delete-message-modal";
+import { EditChannelModal } from "@/components/modals/edit-channel-modal";
+import { DeleteChannelModal } from "@/components/modals/delete-channel-modal";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -33,6 +35,8 @@ export const ModalProvider = () => {
       <DeleteWorkspaceModal />
       <MessageFileModal />
       <DeleteMessageModal />
+      <EditChannelModal />
+      <DeleteChannelModal />
     </>
   );
 };
